@@ -1,12 +1,11 @@
 package com.company;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.channels.AsynchronousServerSocketChannel;
-import java.nio.channels.AsynchronousSocketChannel;
+import java.net.*;
 
-public class Main {
+
+public class Main
+{
 
     public static void main(String[] args) {
         Crypto crypto=new BasicCrypto();
@@ -14,33 +13,34 @@ public class Main {
 
 
 
-            ServerSocket ss=new ServerSocket(1201);
+            ServerSocket ss=new ServerSocket(1001);
             System.out.println("Waiting For Friend ");
             Socket s=ss.accept();
             System.out.println("Friend Connected");
 
-            DataInputStream din=new DataInputStream(s.getInputStream());
-            DataOutputStream dout=new DataOutputStream(s.getOutputStream());
+            DataInputStream d_in=new DataInputStream(s.getInputStream());
+            DataOutputStream d_out=new DataOutputStream(s.getOutputStream());
             BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
 
-            String msgin="", msgout="";
-            while(!msgin.equalsIgnoreCase("end")){
-                msgin = din.readUTF();
-                String dec=new String(crypto.decrypt(msgin.getBytes())); //decrypting
+            String in, out;
+            do{
+                in = d_in.readUTF();
+                String dec=new String(crypto.decrypt(in.getBytes())); //decrypting
                 System.out.println("Friend:" + dec);// print chat_client message
-                msgout = br.readLine();
-                String enc=new String(crypto.encrypt(msgout.getBytes())); //encrypting
+                out = br.readLine();
+                String enc=new String(crypto.encrypt(out.getBytes())); //encrypting
 
                 System.out.println("Encrypted :" + enc);
-                dout.writeUTF(enc);
-                dout.flush();
-
-            }
-
+                d_out.writeUTF(enc);
+                d_out.flush();
+               // System.out.println("in value is "+in);
+            }while (!out.equals("bye"));
+            System.out.println("Server closed");
             s.close();
         }catch (Exception e){
             //Handle Exceptions
         }
     }
 }
+
 
